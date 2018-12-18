@@ -98,7 +98,7 @@ compile "com.platon.client:core:0.2.0"
 ```
 ### 合约骨架生成工具
 1. 安装包下载 http://sdk.juzix.net/content/groups/public
-2. 解压后
+2. 解压后说明
 ```
 .
 +-- _bin
@@ -127,43 +127,9 @@ Usage: web3j version|wallet|solidity|truffle|sophia ...
 Web3j web3 = Web3j.build(new HttpService("http://localhost:6789"));
 ```
 
-# 钱包管理
-
-## 生成钱包文件(keystore)
-```
-// 私钥
-String privateKeyStr = "a392604efc2fad9c0b3da43b5f698a2e3f270f170d859912be0d54742275c5f6";
-
-BigInteger privateKey = Numeric.toBigInt(privateKeyStr);
-ECKeyPair keyPair = ECKeyPair.create(privateKey);
-
-// 创建钱包文件
-WalletFile walletFile = Wallet.createStandard("your password", keyPair);
-```
-
-## 加载钱包文件(keystore)
-```
-File file = new File("/opt/keystore/wallet.json");
-ObjectMapper objectMapper = new ObjectMapper();
-WalletFile walletFile = objectMapper.readValue(file, WalletFile.class);
-```
-
 # 合约
 
-## 合约代码生成
-
-### ABI和BIN生成
-ABI和BIN具体生成方法请参考：
-http://192.168.18.31:8085/doc/zh/sophia/wasm_write.html
-
-
-### 代码生成过程
-使用上步生成的abi和bin，执行如下命令生成合约代码：
-```
-web3j sophia generate /path/to/token.bin /path/to/token.abi -o /path/to/src/main/java -p com.your.organisation.name
-```
-
-### 合约示例
+## 合约示例
 
 ```
 namespace platon {
@@ -215,6 +181,13 @@ extern "C" {
     }
 }
 //platon autogen end
+```
+
+## 合约骨架生成
+1. ABI(wasm文件)和BIN(json文件)具体生成方法请参考：http://192.168.18.31:8085/doc/zh/sophia/wasm_write.html
+2. 使用合约骨架生成工具
+```
+web3j sophia generate /path/to/token.wasm /path/to/token.cpp.abi.json -o /path/to/src/main/java -p com.your.organisation.name
 ```
 
 ## 加载合约
