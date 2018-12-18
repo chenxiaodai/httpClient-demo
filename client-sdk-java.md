@@ -96,7 +96,15 @@
 ```
 compile "com.platon.client:core:0.2.0"
 ```
-4. 骨架生成工具安装
+### 合约骨架生成工具
+1. 安装包下载 http://sdk.juzix.net/content/groups/public
+2. 解压后
+.
++-- _bin
+|   +-- web3j.bat
+|   +-- web3j
++-- _lib
+|   +-- console-x.x.x-all.jar
 
 
 
