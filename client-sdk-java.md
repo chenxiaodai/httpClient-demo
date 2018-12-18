@@ -99,14 +99,28 @@ compile "com.platon.client:core:0.2.0"
 ### 合约骨架生成工具
 1. 安装包下载 http://sdk.juzix.net/content/groups/public
 2. 解压后
+```
 .
 +-- _bin
-|   +-- web3j.bat
-|   +-- web3j
+|   +-- web3j.bat                 //windows执行程序
+|   +-- web3j                     //linux执行程序
 +-- _lib
-|   +-- console-x.x.x-all.jar
+|   +-- console-x.x.x-all.jar     //类库
+```
+3. 到bin目录执行 ./webj
 
+```
+              _      _____ _     _
+             | |    |____ (_)   (_)
+__      _____| |__      / /_     _   ___
+\ \ /\ / / _ \ '_ \     \ \ |   | | / _ \
+ \ V  V /  __/ |_) |.___/ / | _ | || (_) |
+  \_/\_/ \___|_.__/ \____/| |(_)|_| \___/
+                         _/ |
+                        |__/
 
+Usage: web3j version|wallet|solidity|truffle|sophia ...
+```
 
 ## 初始化代码
 ```
