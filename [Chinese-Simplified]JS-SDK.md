@@ -75,7 +75,7 @@ if (typeof web3 !== 'undefined') {
 } else {
     web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:6789'));
 }
-````
+```
 
 ### 合约
 
@@ -83,7 +83,7 @@ Sophia智能合约的编写及其ABI(wasm文件)和BIN(json文件)生成方法�
 
 #### 合约示例
 
-[^_^]:
+```
     namespace platon {
         class ACC : public token::Token {
         public:
@@ -133,6 +133,7 @@ Sophia智能合约的编写及其ABI(wasm文件)和BIN(json文件)生成方法�
         }
     }
     //platon autogen end
+```
 
 #### 部署合约
 
