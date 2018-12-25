@@ -72,7 +72,7 @@
 
 ## v0.2.0 更新说明
 
-1. 支持PlatON的Sophia智能合约
+1. 支持PlatON的智能合约
 
 # 快速入门
 
@@ -102,12 +102,13 @@ compile "com.platon.client:core:x.x.x"
 ```
 .
 +-- _bin
-|   +-- web3j.bat                 //windows执行程序
-|   +-- web3j                     //linux执行程序
+|   +-- client-sdk.bat                 //windows执行程序
+|   +-- client-sdk                     //linux执行程序
 +-- _lib
-|   +-- console-x.x.x-all.jar     //类库
+|   +-- xxx.jar                        //类库
+|   +-- ...
 ```
-3. 到bin目录执行 ./webj
+3. 到bin目录执行 ./client-sdk
 
 ```
               _      _____ _     _
@@ -187,7 +188,7 @@ extern "C" {
 1. Sophia智能合约的编写及其ABI(wasm文件)和BIN(json文件)生成方法请参考 [wiki](https://github.com/PlatONnetwork/wiki/wiki)
 2. 使用合约骨架生成工具
 ```
-web3j sophia generate /path/to/token.wasm /path/to/token.cpp.abi.json -o /path/to/src/main/java -p com.your.organisation.name
+client-sdk sophia generate /path/to/token.wasm /path/to/token.cpp.abi.json -o /path/to/src/main/java -p com.your.organisation.name
 ```
 
 ## 加载合约
