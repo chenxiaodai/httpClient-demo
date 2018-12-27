@@ -202,8 +202,9 @@ web3j.ethLogObservable(filter).subscribe(log -> {
 >查询待处理交易
 
 **参数**
- 
- 无
+
+无 
+
 **返回值**
 
 `Request<?, EthPendingTransactions>`
