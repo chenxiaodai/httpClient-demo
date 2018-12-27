@@ -14,7 +14,7 @@
     -   [合约event](#合约event)
 -   [web3](#web3)
     -   [web3 eth相关 (标准JSON RPC )](#web3-eth相关-标准json-rpc)
-    -   [新增接口](#新增接口)
+    -   [新增的接口](#新增的接口)
         -   [ethPendingTx](#ethpendingtx)
 
 # 概览
@@ -197,7 +197,7 @@ web3j.ethLogObservable(filter).subscribe(log -> {
 ## web3 eth相关 (标准JSON RPC )
 - java api的使用请参考[web3j github](https://github.com/web3j/web3j)
 
-## 新增接口
+## 新增的接口
 ### ethPendingTx
 >查询待处理交易
 

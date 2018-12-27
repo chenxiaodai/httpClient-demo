@@ -13,7 +13,7 @@
   - [合约sendRawTransaction调用](#合约sendrawtransaction调用)
 - [web3](#web3)
   - [web3 eth相关 (标准JSON RPC )](#web3-eth相关-标准json-rpc)
-  - [新增接口](#新增接口)
+  - [新增的接口](#新增的接口)
     - [contract](#contract)
       - [getPlatONData](#contract.getPlatONData)
       - [decodePlatONCall](#contract.decodePlatONCall)
@@ -279,7 +279,7 @@ function getParams(data = '', value = "0x0") {
 ### web3 eth相关 (标准JSON RPC )
 - api的使用请参考[web3j github](https://github.com/ethereum/wiki/wiki/JavaScript-API)
 
-### 新增接口
+### 新增的接口
 
 #### contract
 
