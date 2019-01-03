@@ -147,14 +147,20 @@ client-sdk wasm generate /path/to/token.wasm /path/to/token.cpp.abi.json -o /pat
 ```
 Web3j web3j = Web3j.build(new HttpService("http://localhost:6789"));
 Credentials credentials = WalletUtils.loadCredentials("password", "/path/to/walletfile");
-Token contract = Token.load("0x<address>|<ensName>", web3j, credentials, GAS_PRICE, GAS_LIMIT);
+
+String binData =  Files.readString(new File("<File path>"));
+
+Token contract = Token.load(binData, "0x<address>|<ensName>", web3j, credentials, GAS_PRICE, GAS_LIMIT);
 ```
 
 ## Deploy Contract
 ```
 Web3j web3 = Web3j.build(new HttpService("http://localhost:6789"));
 Credentials credentials = WalletUtils.loadCredentials("password", "/path/to/walletfile");
-Token contract = Token.deploy(web3,credentials,GAS_PRICE, GAS_LIMIT,<param1>, ..., <paramN>).send();
+
+String binData =  Files.readString(new File("<File path>"));
+
+Token contract = Token.deploy(web3, credentials, binData, GAS_PRICE, GAS_LIMIT,<param1>, ..., <paramN>).send();
 ```
 
 ## Contract ethCall call
