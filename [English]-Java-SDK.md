@@ -1,42 +1,42 @@
--   [概览](#概览)
--   [版本说明](#版本说明)
-    -   [v0.2.0 更新说明](#v0.2.0-更新说明)
--   [快速入门](#快速入门)
-    -   [安装或引入](#安装或引入)
-    -   [初始化代码](#初始化代码)
--   [合约](#合约)
-    -   [合约示例](#合约示例)
-    -   [合约骨架生成](#合约骨架生成)
-    -   [加载合约](#加载合约)
-    -   [部署合约](#部署合约)
-    -   [合约call调用](#合约call调用)
-    -   [合约sendRawTransaction调用](#合约sendrawtransaction调用)
-    -   [合约event](#合约event)
+-   [Overview](#Overview)
+-   [Release notes](#Release-notes)
+    -   [v0.2.0 Release notes](#v0.2.0-Release-notes)
+-   [Quick start](#Quick-start)
+    -   [Installation instruction](#Installation-instruction)
+    -   [Code initialization](#Code-initialization)
+-   [Contract](#Contract)
+    -   [Contract Sample Code](#Contract-Sample-Code)
+    -   [Contract Java wrapper building](#Contract-Java-wrapper-building)
+    -   [Load Contract](#Load-Contract)
+    -   [Deploy Contract](#Deploy-Contract)
+    -   [Contract function call](#Contract-function-call)
+    -   [Contract sendRawTransaction function](#Contract-sendrawtransaction-function)
+    -   [Contract event](#Contract-event)
 -   [web3](#web3)
-    -   [web3 eth相关 (标准JSON RPC )](#web3-eth相关-标准json-rpc)
-    -   [新增的接口](#新增的接口)
+    -   [web3 eth related (standard JSON RPC )](#web3-eth-related-standard-json-rpc)
+    -   [New interfaces](#New-interfaces) 
         -   [ethPendingTx](#ethpendingtx)
+	
+# Overview
+> Java SDK is a Java development kit provided by PlatON for Java developers working on PlatON public chain.
 
-# 概览
-> Java SDK是PlatON面向java开发者，提供的PlatON公链的java开发工具包
+# Release notes
 
-# 版本说明
+## v0.2.0 Release notes
 
-## v0.2.0 更新说明
+1. Support PlatON smart contracts
 
-1. 支持PlatON的智能合约
+# Quick start
 
-# 快速入门
+## Installation instruction
 
-## 安装或引入
-
-### 环境要求
+### Environment requirement
 
 1. jdk1.8
 
 ### maven
-1. 仓库地址 http://sdk.platon.network/content/groups/public/
-2. maven方式引用
+1. SDK lib address https://sdk.platon.network/nexus/content/groups/public/
+2. Build by maven configuration
 ```
 <dependency>
     <groupId>com.platon.client</groupId>
@@ -44,23 +44,23 @@
     <version>x.x.x</version>
 </dependency>
 ```
-3. gradle方式引用
+3. Build by gradle
 ```
 compile "com.platon.client:core:x.x.x"
 ```
-### 合约骨架生成工具
-1. 安装包下载 https://github.com/PlatONnetwork/client-sdk-java/releases
-2. 解压后说明
+### Building contract Java wrapper
+1. Download SDK package from url: https://download.platon.network/client-sdk.zip
+2. Folder structures after uncompress
 ```
 .
 +-- _bin
-|   +-- client-sdk.bat                 //windows执行程序
-|   +-- client-sdk                     //linux执行程序
+|   +-- client-sdk.bat                 //windows executable
+|   +-- client-sdk                     //linux executable
 +-- _lib
-|   +-- xxx.jar                        //类库
+|   +-- xxx.jar                        //JAR file
 |   +-- ...
 ```
-3. 到bin目录执行 ./client-sdk
+3. Execute coresponding ./client-sdk command in bin folder above  
 
 ```
               _      _____ _     _
@@ -75,14 +75,14 @@ __      _____| |__      / /_     _   ___
 Usage: client-sdk version|wallet|solidity|truffle|wasm ...
 ```
 
-## 初始化代码
+## Code initialization
 ```
 Web3j web3 = Web3j.build(new HttpService("http://localhost:6789"));
 ```
 
-# 合约
+# Contract
 
-## 合约示例
+## Contract Sample Code
 
 ```
 namespace platon {
@@ -115,7 +115,7 @@ PLATON_ABI(platon::ACC, create)
 PLATON_ABI(platon::ACC, getAsset)
 PLATON_ABI(platon::ACC, transfer)
 //platon autogen begin
-extern "C" { 
+extern "C" {
     void create(const char * addr,unsigned long long asset) {
         platon::ACC ACC_platon;
         ACC_platon.create(addr,asset);
@@ -136,28 +136,28 @@ extern "C" {
 //platon autogen end
 ```
 
-## 合约骨架生成
-1. wasm智能合约的编写及其ABI(wasm文件)和BIN(json文件)生成方法请参考 [wiki](https://github.com/PlatONnetwork/wiki/wiki)
-2. 使用合约骨架生成工具
+## Build contract Java wrapper
+1. How to code wasm contract, ABI(wasm file) and BIN(json file), please refer to [wiki](https://github.com/PlatONnetwork/wiki/wiki)
+2. Use contract Java wrapper building toolkit
 ```
 client-sdk wasm generate /path/to/token.wasm /path/to/token.cpp.abi.json -o /path/to/src/main/java -p com.your.organisation.name
 ```
 
-## 加载合约
+## Load Contract
 ```
 Web3j web3j = Web3j.build(new HttpService("http://localhost:6789"));
 Credentials credentials = WalletUtils.loadCredentials("password", "/path/to/walletfile");
 Token contract = Token.load("0x<address>|<ensName>", web3j, credentials, GAS_PRICE, GAS_LIMIT);
 ```
 
-## 部署合约
+## Deploy Contract
 ```
 Web3j web3 = Web3j.build(new HttpService("http://localhost:6789"));
 Credentials credentials = WalletUtils.loadCredentials("password", "/path/to/walletfile");
 Token contract = Token.deploy(web3,credentials,GAS_PRICE, GAS_LIMIT,<param1>, ..., <paramN>).send();
 ```
 
-## 合约call调用
+## Contract ethCall call
 ```
 Request<?, org.web3j.protocol.core.methods.response.EthCall> req = web3j.ethCall(Transaction.createEthCallTransaction(
                "0xa70e8dd61c5d32be8058bb8eb970870f07233155",
@@ -169,7 +169,7 @@ String value = res.getValue();
 
 ```
 
-## 合约sendRawTransaction调用
+## Contract sendRawTransaction call
 ```
 Web3j web3j = Web3j.build(new HttpService("http://localhost:6789"));
 
@@ -179,8 +179,8 @@ org.web3j.protocol.core.methods.response.EthSendTransaction res = req.send();
 String transactionHash = res.getTransactionHash();
 
 ```
-## 合约event
-假设合约中定义了名称为transfer的事件，则可以使用下面的代码监听：
+## Contract event
+Assume Contrace has an event "transfer", then we could monitor this event as below
 
 ```
 String contractAddress = "0x223424fskljlsldfsf";
@@ -194,23 +194,25 @@ web3j.ethLogObservable(filter).subscribe(log -> {
 ```
 
 # web3
-## web3 eth相关 (标准JSON RPC )
-- java api的使用请参考[web3j github](https://github.com/web3j/web3j)
+## web3 eth related (standard JSON RPC)
+- For detailed api usage please refer [web3j github](https://github.com/web3j/web3j)
 
-## 新增的接口
+## New interfaces
 ### ethPendingTx
->查询待处理交易
+>Returns the pending transaction list.
 
-**参数**
- 
- 无
- 
-**返回值**
+**Parameters**
+
+      Name                  Type            Attributes   Description
+    ----------------------- -------------- ------ -------
+                         (No Parameters)
+
+**Return value**
 
 `Request<?, EthPendingTransactions>`
-EthPendingTransactions属性中的transactions即为对应存储数据
+transactions data member of EthPendingTransactions object
 
-**示例**
+**Sample Code**
 ```
 Request<?, EthPendingTransactions> req = web3j.ethPendingTx();
 EthPendingTransactions res = req.send();
