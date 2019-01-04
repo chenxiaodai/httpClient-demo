@@ -148,9 +148,10 @@ client-sdk wasm generate /path/to/token.wasm /path/to/token.cpp.abi.json -o /pat
 Web3j web3j = Web3j.build(new HttpService("http://localhost:6789"));
 Credentials credentials = WalletUtils.loadCredentials("password", "/path/to/walletfile");
 
-String binData =  Files.readString(new File("<File path>"));
+byte[] dataBytes = Files.readBytes(new File("<wasm file path>"));
+String binData = Hex.toHexString(dataBytes);
 
-Token contract = Token.load(binData, "0x<address>|<ensName>", web3j, credentials, GAS_PRICE, GAS_LIMIT);
+Token contract = Token.load(binData, "0x<address>", web3j, credentials, new StaticGasProvider(GAS_PRICE, GAS_LIMIT));
 ```
 
 ## 部署合约
@@ -158,9 +159,10 @@ Token contract = Token.load(binData, "0x<address>|<ensName>", web3j, credentials
 Web3j web3 = Web3j.build(new HttpService("http://localhost:6789"));
 Credentials credentials = WalletUtils.loadCredentials("password", "/path/to/walletfile");
 
-String binData =  Files.readString(new File("<File path>"));
+byte[] dataBytes = Files.readBytes(new File("<wasm file path>"));
+String binData = Hex.toHexString(dataBytes);
 
-Token contract = Token.deploy(web3, credentials, binData, GAS_PRICE, GAS_LIMIT,<param1>, ..., <paramN>).send();
+Token contract = Token.deploy(web3, credentials, binData, new StaticGasProvider(GAS_PRICE,GAS_LIMIT)).send();
 ```
 
 ## 合约call调用
