@@ -41,7 +41,7 @@
 1. jdk1.8
 
 ### maven
-1. 仓库地址 https://sdk.platon.network/nexus/content/groups/public/
+1. 配置仓库
     
     1. maven项目配置
     ```
@@ -296,7 +296,7 @@ for (CandidateDepositEventEventResponse event : events) {
 ```
 
 #### **`CandidateApplyWithdraw`**
-> 节点质押金退回申请，申请成功后节点将被重新排序，==发起的地址必须是质押金退款的地址 from\==owner==
+> 节点质押金退回申请，申请成功后节点将被重新排序，发起的地址必须是质押金退款的地址 from==owner
 
 入参：
 
@@ -379,7 +379,7 @@ for (CandidateWithdrawEventEventResponse event : events) {
 ```
 
 #### **`SetCandidateExtra`**
-> 设置节点附加信息, ==发起的地址必须是质押金退款的地址 from\==owner==
+> 设置节点附加信息, 发起的地址必须是质押金退款的地址 from==owner
 
 入参：
 
@@ -453,7 +453,7 @@ for (SetCandidateExtraEventEventResponse event : events) {
 
 返回：
 
-- String:json格式字符串
+- String：json格式字符串
 
 ```
 {
@@ -488,7 +488,7 @@ logger.debug("CandidateWithdrawInfos:{}",result);
 
 返回：
 
-- String:json格式字符串
+- String：json格式字符串
 
 ```
 {
@@ -536,7 +536,7 @@ logger.debug("CandidateDetails:{}",result);
 
 返回：
 
-- String:json格式字符串
+- String：json格式字符串
 
 ```
 [{
@@ -587,7 +587,7 @@ logger.debug("GetBatchCandidateDetail:{}",result);
 
 返回：
 
-- String:json格式字符串
+- String：json格式字符串
 
 ```
 [{
@@ -628,7 +628,7 @@ logger.debug("CandidateList:{}",nodeInfoList);
 
 返回：
 
-- String:json格式字符串
+- String：json格式字符串
 
 ```
 [{
@@ -661,8 +661,6 @@ logger.debug("CandidateList:{}",nodeInfoList);
 String result = contract.VerifiersList().send();
 logger.debug("VerifiersList:{}",result);
 ```
-
-
 
 # web3
 ## web3 eth相关 (标准JSON RPC )
