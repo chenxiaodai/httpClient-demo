@@ -243,6 +243,7 @@ Extra描述
 ```
 
 返回事件：
+
 | **参数名** | **类型** | **参数说明** |
 | ------ | ------ | ------ |
 | param1 | String | 执行结果，json格式字符串类型 |
@@ -295,104 +296,371 @@ for (CandidateDepositEventEventResponse event : events) {
 ```
 
 #### **`CandidateApplyWithdraw`**
-节点质押金退回申请，申请成功后节点将被重新排序，权限校验from==owner。
+> 节点质押金退回申请，申请成功后节点将被重新排序，==发起的地址必须是质押金退款的地址 from\==owner==
+
 入参：
-* `nodeId`: [64]byte 节点ID(公钥)
-* `withdraw`: uint256 退款金额 (单位：ADP)
 
-出参（事件：CandidateApplyWithdrawEvent）：
-* `Ret`: bool 操作结果
-* `ErrMsg`: string 错误信息
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| nodeId | String  | 节点id, 16进制格式， 0x开头 |
+| withdraw | BigInteger |  退款金额 (单位：wei) |
 
-### **`CandidateWithdrawInfos`**
-获取节点申请的退款记录列表
+
+返回事件：
+
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| param1 | String | 执行结果，json格式字符串类型 |
+
+param1描述
+```
+{
+	"Ret":boolean,                         //是否成功 true:成功  false:失败
+	"ErrMsg":string                        //错误信息，失败时存在
+}
+```
+
+合约使用：
+```
+//节点id
+String nodeId = "0x6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3"; 
+//退款金额, 单位 wei
+BigInteger value = BigInteger.valueOf(100);
+
+//调用接口
+TransactionReceipt receipt = ownerContract.CandidateApplyWithdraw(nodeId,value).send();
+logger.debug("TransactionReceipt:{}", JSON.toJSONString(receipt));
+
+//查看返回event
+List<CandidateApplyWithdrawEventEventResponse>  events = ownerContract.getCandidateApplyWithdrawEventEvents(receipt);
+for (CandidateApplyWithdrawEventEventResponse event : events) {
+	 logger.debug("event:{}", JSON.toJSONString(event.param1));
+}
+```
+
+#### **`CandidateWithdraw`**
+> 节点质押金提取，调用成功后会提取所有已申请退回的质押金到owner账户。
+
 入参：
-* `nodeId`: [64]byte 节点ID(公钥)
 
-出参：
-* `Ret`: bool 操作结果
-* `ErrMsg`: string 错误信息
-* `[]`:列表
-	* 'Balance': uint256 退款金额 (单位：ADP)
-	* `LockNumber`: uint256 退款申请所在块高
-	* `LockBlockCycle`: uint256 退款金额锁定周期
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| nodeId | String  | 节点id, 16进制格式， 0x开头 |
 
-### **`CandidateWithdraw`**
-节点质押金提取，调用成功后会提取所有已申请退回的质押金到owner账户。
+
+返回事件：
+
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| param1 | String | 执行结果，json格式字符串类型 |
+
+param1描述
+```
+{
+	"Ret":boolean,                         //是否成功 true:成功  false:失败
+	"ErrMsg":string                        //错误信息，失败时存在
+}
+```
+
+合约使用：
+```
+//节点id
+String nodeId = "0x6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3"; 
+
+//调用接口
+TransactionReceipt receipt = contract.CandidateWithdraw(nodeId).send();
+logger.debug("TransactionReceipt:{}", JSON.toJSONString(receipt));
+
+//查看返回event
+List<CandidateWithdrawEventEventResponse>  events = contract.getCandidateWithdrawEventEvents(receipt);
+for (CandidateWithdrawEventEventResponse event : events) {
+    logger.debug("event:{}", JSON.toJSONString(event.param1));
+}
+```
+
+#### **`SetCandidateExtra`**
+> 设置节点附加信息, ==发起的地址必须是质押金退款的地址 from\==owner==
+
 入参：
-* `nodeId`: [64]byte 节点ID(公钥)
 
-出参（事件：CandidateWithdrawEvent）：
-* `Ret`: bool 操作结果
-* `ErrMsg`: string 错误信息
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| Extra | String | 附加数据，json格式字符串类型 |
 
-### **`SetCandidateExtra`**
-设置节点附加信息，供前端扩展使用。
+Extra描述
+```
+{
+	"nodeName":string,                     //节点名称
+	"officialWebsite":string,              //官网 http | https
+ 	"nodePortrait":string,                 //节点logo http | https
+	"nodeDiscription":string,              //机构简介
+	"nodeDepartment":string                //机构名称
+}
+```
+
+返回事件：
+
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| param1 | String | 执行结果，json格式字符串类型 |
+
+param1描述
+```
+{
+	"Ret":boolean,                         //是否成功 true:成功  false:失败
+	"ErrMsg":string                        //错误信息，失败时存在
+}
+```
+
+合约使用：
+```
+//节点id
+String nodeId = "0x6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3"; 
+
+//附加数据
+JSONObject extra = new JSONObject();
+//节点名称
+extra.put("nodeName", "xxxx-noedeName");
+//节点logo
+extra.put("nodePortrait", "group2/M00/00/12/wKgJVlw0XSyAY78cAAH3BKJzz9Y83.jpeg");
+//机构简介
+extra.put("nodeDiscription", "xxxx-nodeDiscription1");
+//机构名称
+extra.put("nodeDepartment", "xxxx-nodeDepartment");  
+//官网
+extra.put("officialWebsite", "xxxx-officialWebsite");  
+
+
+//调用接口
+TransactionReceipt receipt = ownerContract.SetCandidateExtra(nodeId,extra.toJSONString()).send();
+logger.debug("TransactionReceipt:{}", JSON.toJSONString(receipt));
+
+//查看返回event
+List<SetCandidateExtraEventEventResponse>  events = contract.getSetCandidateExtraEventEvents(receipt);
+for (SetCandidateExtraEventEventResponse event : events) {
+    logger.debug("event:{}", JSON.toJSONString(event.param1));
+}
+```
+
+#### **`CandidateWithdrawInfos`**
+> 获取节点申请的退款记录列表
+
 入参：
-* `nodeId`: [64]byte 节点ID(公钥)
-* `extra`: string 附加信息
 
-出参（事件：SetCandidateExtraEvent）：
-* `Ret`: bool 操作结果
-* `ErrMsg`: string 错误信息
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| nodeId | String  | 节点id, 16进制格式， 0x开头 |
 
-### **`CandidateDetails`**
-获取候选人信息。
+返回：
+
+- String:json格式字符串
+
+```
+{
+	"Ret": true,                      
+	"ErrMsg": "success",
+	"Infos": [{                        //退款记录
+		"Balance": 100,                //退款金额
+		"LockNumber": 13112,           //退款申请所在块高
+		"LockBlockCycle": 1            //退款金额锁定周期
+	}]
+}
+```
+
+合约使用：
+```
+//节点id
+String nodeId = "0x6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3"; 
+ 
+//调用接口
+String result = contract.CandidateWithdrawInfos(nodeId).send();
+logger.debug("CandidateWithdrawInfos:{}",result);
+```
+
+#### **`CandidateDetails`**
+> 获取候选人信息
+
 入参：
-* `nodeId`: [64]byte 节点ID(公钥)
 
-出参：
-* `Deposit`: uint256 质押金额 (单位：ADP)
-* `BlockNumber`: uint256 质押金更新的最新块高
-* `Owner`: [20]byte 质押金退款地址
-* `TxIndex`: uint32 所在区块交易索引
-* `CandidateId`: [64]byte 节点Id(公钥)
-* `From`: [20]byte 最新质押交易的发送方
-* `Fee`: uint64 出块奖励佣金比，以10000为基数(eg：5%，则fee=500)
-* `Host`: string 节点IP
-* `Port`: string 节点端口号
-* `Extra`: string 附加数据(有长度限制，限制值待定)
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| nodeId | String  | 节点id, 16进制格式， 0x开头 |
 
-### **`CandidateList`**
-获取所有入围节点的信息列表
+返回：
+
+- String:json格式字符串
+
+```
+{
+    //质押金额 
+	"Deposit": 200,    
+	//质押金更新的最新块高
+	"BlockNumber": 12206,
+	//所在区块交易索引
+	"TxIndex": 0,
+	//节点Id
+	"CandidateId": "6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3",
+	//节点IP
+	"Host": "192.168.9.76",
+	//节点P2P端口号
+	"Port": "26794",
+	//质押金退款地址
+	"Owner": "0xf8f3978c14f585c920718c27853e2380d6f5db36",
+	//最新质押交易的发送方
+	"From": "0x493301712671ada506ba6ca7891f436d29185821",
+	//附加数据
+	"Extra": "{\"nodeName\":\"xxxx-noedeName\",\"officialWebsite\":\"xxxx-officialWebsite\",\"nodePortrait\":\"group2/M00/00/12/wKgJVlw0XSyAY78cAAH3BKJzz9Y83.jpeg\",\"nodeDiscription\":\"xxxx-nodeDiscription1\",\"nodeDepartment\":\"xxxx-nodeDepartment\"}",
+	//出块奖励佣金比，以10000为基数(eg：5%，则fee=500)
+	"Fee": 500
+}
+```
+
+合约使用：
+```
+//节点id
+String nodeId = "0x6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3"; 
+ 
+//调用接口
+String result = contract.CandidateDetails(nodeId).send();
+logger.debug("CandidateDetails:{}",result);  
+```
+
+#### **`GetBatchCandidateDetail`**
+> 批量获取候选人信息
+
 入参：
-* 无
 
-出参：
-* `Ret`: bool 操作结果
-* `ErrMsg`: string 错误信息
-* `[]`:列表
-	* `Deposit`: uint256 质押金额 (单位：ADP)
-	* `BlockNumber`: uint256 质押金更新的最新块高
-	* `Owner`: [20]byte 质押金退款地址
-	* `TxIndex`: uint32 所在区块交易索引
-	* `CandidateId`: [64]byte 节点Id(公钥)
-	* `From`: [20]byte 最新质押交易的发送方
-	* `Fee`: uint64 出块奖励佣金比，以10000为基数(eg：5%，则fee=500)
-	* `Host`: string 节点IP
-	* `Port`: string 节点端口号
-	* `Extra`: string 附加数据(有长度限制，限制值待定)
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| nodeIds | String  | 节点id列表，中间通过`:`号分割 |
 
-### **`VerifiersList`**
-获取参与当前共识的验证人列表
-入参：
-* 无
+返回：
 
-出参：
-* `Ret`: bool 操作结果
-* `ErrMsg`: string 错误信息
-* `[]`:列表
-	* `Deposit`: uint256 质押金额 (单位：ADP)
-	* `BlockNumber`: uint256 质押金更新的最新块高
-	* `Owner`: [20]byte 质押金退款地址
-	* `TxIndex`: uint32 所在区块交易索引
-	* `CandidateId`: [64]byte 节点Id(公钥)
-	* `From`: [20]byte 最新质押交易的发送方
-	* `Fee`: uint64 出块奖励佣金比，以10000为基数(eg：5%，则fee=500)
-	* `Host`: string 节点IP
-	* `Port`: string 节点端口号
-	* `Extra`: string 附加数据(有长度限制，限制值待定)
+- String:json格式字符串
 
+```
+[{
+	"Deposit": 11100000000000000000,
+	"BlockNumber": 13721,
+	"TxIndex": 0,
+	"CandidateId": "c0e69057ec222ab257f68ca79d0e74fdb720261bcdbdfa83502d509a5ad032b29d57c6273f1c62f51d689644b4d446064a7c8279ff9abd01fa846a3555395535",
+	"Host": "192.168.9.76",
+	"Port": "26793",
+	"Owner": "0x3ef573e439071c87fe54287f07fe1fd8614f134c",
+	"From": "0x3ef573e439071c87fe54287f07fe1fd8614f134c",
+	"Extra": "{\"nodeName\":\"xxxx-noedeName\",\"officialWebsite\":\"xxxx-officialWebsite\",\"nodePortrait\":\"group2/M00/00/12/wKgJVlw0XSyAY78cAAH3BKJzz9Y83.jpeg\",\"nodeDiscription\":\"xxxx-nodeDiscription1\",\"nodeDepartment\":\"xxxx-nodeDepartment\"}",
+	"Fee": 9900
+}, {
+	"Deposit": 200,
+	"BlockNumber": 12206,
+	"TxIndex": 0,
+	"CandidateId": "6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3",
+	"Host": "192.168.9.76",
+	"Port": "26794",
+	"Owner": "0xf8f3978c14f585c920718c27853e2380d6f5db36",
+	"From": "0x493301712671ada506ba6ca7891f436d29185821",
+	"Extra": "{\"nodeName\":\"xxxx-noedeName\",\"officialWebsite\":\"xxxx-officialWebsite\",\"nodePortrait\":\"group2/M00/00/12/wKgJVlw0XSyAY78cAAH3BKJzz9Y83.jpeg\",\"nodeDiscription\":\"xxxx-nodeDiscription1\",\"nodeDepartment\":\"xxxx-nodeDepartment\"}",
+	"Fee": 500
+}]
+```
+
+合约使用：
+```
+//节点id
+StringBuilder stringBuilder = new StringBuilder();
+//节点1
+stringBuilder.append("0x6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3");
+//分割
+stringBuilder.append(":");
+//节点2
+stringBuilder.append("0xc0e69057ec222ab257f68ca79d0e74fdb720261bcdbdfa83502d509a5ad032b29d57c6273f1c62f51d689644b4d446064a7c8279ff9abd01fa846a3555395535");
+
+//调用接口
+String result = contract.GetBatchCandidateDetail(stringBuilder.toString()).send();
+logger.debug("GetBatchCandidateDetail:{}",result);
+```
+
+#### **`CandidateList`**
+> 获取所有入围节点的信息列表
+
+入参：无
+
+返回：
+
+- String:json格式字符串
+
+```
+[{
+	"Deposit": 11100000000000000000,
+	"BlockNumber": 13721,
+	"TxIndex": 0,
+	"CandidateId": "c0e69057ec222ab257f68ca79d0e74fdb720261bcdbdfa83502d509a5ad032b29d57c6273f1c62f51d689644b4d446064a7c8279ff9abd01fa846a3555395535",
+	"Host": "192.168.9.76",
+	"Port": "26793",
+	"Owner": "0x3ef573e439071c87fe54287f07fe1fd8614f134c",
+	"From": "0x3ef573e439071c87fe54287f07fe1fd8614f134c",
+	"Extra": "{\"nodeName\":\"xxxx-noedeName\",\"officialWebsite\":\"xxxx-officialWebsite\",\"nodePortrait\":\"group2/M00/00/12/wKgJVlw0XSyAY78cAAH3BKJzz9Y83.jpeg\",\"nodeDiscription\":\"xxxx-nodeDiscription1\",\"nodeDepartment\":\"xxxx-nodeDepartment\"}",
+	"Fee": 9900
+}, {
+	"Deposit": 200,
+	"BlockNumber": 12206,
+	"TxIndex": 0,
+	"CandidateId": "6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3",
+	"Host": "192.168.9.76",
+	"Port": "26794",
+	"Owner": "0xf8f3978c14f585c920718c27853e2380d6f5db36",
+	"From": "0x493301712671ada506ba6ca7891f436d29185821",
+	"Extra": "{\"nodeName\":\"xxxx-noedeName\",\"officialWebsite\":\"xxxx-officialWebsite\",\"nodePortrait\":\"group2/M00/00/12/wKgJVlw0XSyAY78cAAH3BKJzz9Y83.jpeg\",\"nodeDiscription\":\"xxxx-nodeDiscription1\",\"nodeDepartment\":\"xxxx-nodeDepartment\"}",
+	"Fee": 500
+}]
+```
+
+合约使用：
+```
+String nodeInfoList = contract.CandidateList().send();
+logger.debug("CandidateList:{}",nodeInfoList);
+```
+
+#### **`VerifiersList`**
+> 获取参与当前共识的验证人列表
+
+入参：无
+
+返回：
+
+- String:json格式字符串
+
+```
+[{
+	"Deposit": 11100000000000000000,
+	"BlockNumber": 13721,
+	"TxIndex": 0,
+	"CandidateId": "c0e69057ec222ab257f68ca79d0e74fdb720261bcdbdfa83502d509a5ad032b29d57c6273f1c62f51d689644b4d446064a7c8279ff9abd01fa846a3555395535",
+	"Host": "192.168.9.76",
+	"Port": "26793",
+	"Owner": "0x3ef573e439071c87fe54287f07fe1fd8614f134c",
+	"From": "0x3ef573e439071c87fe54287f07fe1fd8614f134c",
+	"Extra": "{\"nodeName\":\"xxxx-noedeName\",\"officialWebsite\":\"xxxx-officialWebsite\",\"nodePortrait\":\"group2/M00/00/12/wKgJVlw0XSyAY78cAAH3BKJzz9Y83.jpeg\",\"nodeDiscription\":\"xxxx-nodeDiscription1\",\"nodeDepartment\":\"xxxx-nodeDepartment\"}",
+	"Fee": 9900
+}, {
+	"Deposit": 200,
+	"BlockNumber": 12206,
+	"TxIndex": 0,
+	"CandidateId": "6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3",
+	"Host": "192.168.9.76",
+	"Port": "26794",
+	"Owner": "0xf8f3978c14f585c920718c27853e2380d6f5db36",
+	"From": "0x493301712671ada506ba6ca7891f436d29185821",
+	"Extra": "{\"nodeName\":\"xxxx-noedeName\",\"officialWebsite\":\"xxxx-officialWebsite\",\"nodePortrait\":\"group2/M00/00/12/wKgJVlw0XSyAY78cAAH3BKJzz9Y83.jpeg\",\"nodeDiscription\":\"xxxx-nodeDiscription1\",\"nodeDepartment\":\"xxxx-nodeDepartment\"}",
+	"Fee": 500
+}]
+```
+
+合约使用：
+```
+String result = contract.VerifiersList().send();
+logger.debug("VerifiersList:{}",result);
+```
 
 
 
