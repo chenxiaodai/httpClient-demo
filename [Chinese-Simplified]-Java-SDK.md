@@ -220,7 +220,7 @@ CandidateContract contract = CandidateContract.load(web3j, credentials, new Defa
 #### **`CandidateDeposit`**
 > 节点候选人申请/增加质押
 
-入参：
+**入参**
 
 | **参数名** | **类型** | **参数说明** |
 | ------ | ------ | ------ |
@@ -242,7 +242,7 @@ Extra描述
 }
 ```
 
-返回事件：
+**返回事件**
 
 | **参数名** | **类型** | **参数说明** |
 | ------ | ------ | ------ |
@@ -256,7 +256,7 @@ param1描述
 }
 ```
 
-合约使用：
+**合约使用**
 ```
 //节点id
 String nodeId = "0x6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3"; 
@@ -298,7 +298,7 @@ for (CandidateDepositEventEventResponse event : events) {
 #### **`CandidateApplyWithdraw`**
 > 节点质押金退回申请，申请成功后节点将被重新排序，发起的地址必须是质押金退款的地址 from==owner
 
-入参：
+**入参**
 
 | **参数名** | **类型** | **参数说明** |
 | ------ | ------ | ------ |
@@ -306,7 +306,7 @@ for (CandidateDepositEventEventResponse event : events) {
 | withdraw | BigInteger |  退款金额 (单位：wei) |
 
 
-返回事件：
+**返回事件**
 
 | **参数名** | **类型** | **参数说明** |
 | ------ | ------ | ------ |
@@ -320,7 +320,7 @@ param1描述
 }
 ```
 
-合约使用：
+**合约使用**
 ```
 //节点id
 String nodeId = "0x6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3"; 
@@ -341,14 +341,14 @@ for (CandidateApplyWithdrawEventEventResponse event : events) {
 #### **`CandidateWithdraw`**
 > 节点质押金提取，调用成功后会提取所有已申请退回的质押金到owner账户。
 
-入参：
+**入参**
 
 | **参数名** | **类型** | **参数说明** |
 | ------ | ------ | ------ |
 | nodeId | String  | 节点id, 16进制格式， 0x开头 |
 
 
-返回事件：
+**返回事件**
 
 | **参数名** | **类型** | **参数说明** |
 | ------ | ------ | ------ |
@@ -362,7 +362,7 @@ param1描述
 }
 ```
 
-合约使用：
+**合约使用**
 ```
 //节点id
 String nodeId = "0x6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3"; 
@@ -381,7 +381,7 @@ for (CandidateWithdrawEventEventResponse event : events) {
 #### **`SetCandidateExtra`**
 > 设置节点附加信息, 发起的地址必须是质押金退款的地址 from==owner
 
-入参：
+**入参**
 
 | **参数名** | **类型** | **参数说明** |
 | ------ | ------ | ------ |
@@ -398,7 +398,7 @@ Extra描述
 }
 ```
 
-返回事件：
+**返回事件**
 
 | **参数名** | **类型** | **参数说明** |
 | ------ | ------ | ------ |
@@ -412,7 +412,7 @@ param1描述
 }
 ```
 
-合约使用：
+**合约使用**
 ```
 //节点id
 String nodeId = "0x6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3"; 
@@ -445,13 +445,13 @@ for (SetCandidateExtraEventEventResponse event : events) {
 #### **`CandidateWithdrawInfos`**
 > 获取节点申请的退款记录列表
 
-入参：
+**入参**
 
 | **参数名** | **类型** | **参数说明** |
 | ------ | ------ | ------ |
 | nodeId | String  | 节点id, 16进制格式， 0x开头 |
 
-返回：
+**返回**
 
 - String：json格式字符串
 
@@ -467,7 +467,7 @@ for (SetCandidateExtraEventEventResponse event : events) {
 }
 ```
 
-合约使用：
+**合约使用**
 ```
 //节点id
 String nodeId = "0x6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3"; 
@@ -480,13 +480,13 @@ logger.debug("CandidateWithdrawInfos:{}",result);
 #### **`CandidateDetails`**
 > 获取候选人信息
 
-入参：
+**入参**
 
 | **参数名** | **类型** | **参数说明** |
 | ------ | ------ | ------ |
 | nodeId | String  | 节点id, 16进制格式， 0x开头 |
 
-返回：
+**返回**
 
 - String：json格式字符串
 
@@ -515,7 +515,7 @@ logger.debug("CandidateWithdrawInfos:{}",result);
 }
 ```
 
-合约使用：
+**合约使用**
 ```
 //节点id
 String nodeId = "0x6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3"; 
@@ -528,13 +528,13 @@ logger.debug("CandidateDetails:{}",result);
 #### **`GetBatchCandidateDetail`**
 > 批量获取候选人信息
 
-入参：
+**入参**
 
 | **参数名** | **类型** | **参数说明** |
 | ------ | ------ | ------ |
 | nodeIds | String  | 节点id列表，中间通过`:`号分割 |
 
-返回：
+**返回**
 
 - String：json格式字符串
 
@@ -564,7 +564,7 @@ logger.debug("CandidateDetails:{}",result);
 }]
 ```
 
-合约使用：
+**合约使用**
 ```
 //节点id
 StringBuilder stringBuilder = new StringBuilder();
@@ -583,9 +583,11 @@ logger.debug("GetBatchCandidateDetail:{}",result);
 #### **`CandidateList`**
 > 获取所有入围节点的信息列表
 
-入参：无
+**入参**
 
-返回：
+无
+
+**返回**
 
 - String：json格式字符串
 
@@ -615,7 +617,7 @@ logger.debug("GetBatchCandidateDetail:{}",result);
 }]
 ```
 
-合约使用：
+**合约使用**
 ```
 String nodeInfoList = contract.CandidateList().send();
 logger.debug("CandidateList:{}",nodeInfoList);
@@ -624,9 +626,11 @@ logger.debug("CandidateList:{}",nodeInfoList);
 #### **`VerifiersList`**
 > 获取参与当前共识的验证人列表
 
-入参：无
+**入参**
 
-返回：
+无
+
+**返回**
 
 - String：json格式字符串
 
