@@ -221,55 +221,77 @@ CandidateContract contract = CandidateContract.load(web3j, credentials, new Defa
 > 节点候选人申请/增加质押
 
 入参：
-* `nodeId`: [64]byte 节点ID(公钥)
-* `owner`: [20]byte 质押金退款地址
-* `fee`: uint32 出块奖励佣金比，以10000为基数(eg：5%，则fee=500)
-* `host`: string 节点IP
-* `port`: string 节点端口号
-* `Extra`: string 附加数据(有长度限制，限制值待定) {
-sdsd
-cdsc
+
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| nodeId | String  | 节点id, 16进制格式， 0x开头 |
+| owner | String | 质押金退款地址, 16进制格式， 0x开头 |
+| fee | BigInteger |  出块奖励佣金比，以10000为基数(eg：5%，则fee=500) |
+| host | String | 节点IP  |
+| port | String | 节点P2P端口号 |
+| Extra | String | 附加数据，json格式字符串类型 |
+
+Extra描述
+```
+{
+	"nodeName":string,                     //节点名称
+	"officialWebsite":string,              //官网 http | https
+ 	"nodePortrait":string,                 //节点logo http | https
+	"nodeDiscription":string,              //机构简介
+	"nodeDepartment":string                //机构名称
 }
-* `port`: string 节点端口号
+```
 
-出参（事件：CandidateDepositEvent）：
-* `Ret`: bool 操作结果
-* `ErrMsg`: string 错误信息
+返回事件：
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| param1 | String | 执行结果，json格式字符串类型 |
 
-合约方法
+param1描述
+```
+{
+	"Ret":boolean,                         //是否成功 true:成功  false:失败
+	"ErrMsg":string                        //错误信息，失败时存在
+}
+```
+
+合约使用：
 ```
 //节点id
-String nodeId = "0x1f3a8672348ff6b789e416762ad53e69063138b8eb4d8780101658f24b2369f1a8e09499226b467d8bc0c4e03e1dc903df857eeb3c67733d21b6aaee2840e429"; 
+String nodeId = "0x6bad331aa2ec6096b2b6034570e1761d687575b38c3afc3a3b5f892dac4c86d0fc59ead0f0933ae041c0b6b43a7261f1529bad5189be4fba343875548dc9efd3"; 
 //质押金退款地址
-String owner = "0x493301712671ada506ba6ca7891f436d29185821";
+String owner = "0xf8f3978c14f585c920718c27853e2380d6f5db36";
 //出块奖励佣金比，以10000为基数(eg：5%，则fee=500)
 BigInteger fee =  BigInteger.valueOf(500L);
 //节点IP
-String host = "127.0.0.1";
+String host = "192.168.9.76";
 //节点P2P端口号
-String port = "16789";
+String port = "26794";
 //附加数据
 JSONObject extra = new JSONObject();
 //节点名称
-extra.put("nodeName", "xxxx noedeName");
+extra.put("nodeName", "xxxx-noedeName");
 //节点logo
-extra.put("nodePortrait", "xxxx nodePortrait");
+extra.put("nodePortrait", "http://192.168.9.86:8082/group2/M00/00/00/wKgJVlr0KDyAGSddAAYKKe2rswE261.png");
 //机构简介
-extra.put("nodeDiscription", "xxxx nodeDiscription");
+extra.put("nodeDiscription", "xxxx-nodeDiscription");
 //机构名称
-extra.put("nodeDepartment", "xxxx nodeDepartment");  
+extra.put("nodeDepartment", "xxxx-nodeDepartment");  
 //官网
-extra.put("officialWebsite", "xxxx officialWebsite");  
+extra.put("officialWebsite", "https://www.platon.network/");  
+
+//质押金额, 单位 wei
+BigInteger value = BigInteger.valueOf(100);
   
 //调用接口
-  TransactionReceipt receipt = contract.CandidateDeposit(nodeId, owner, fee, host, port, extra.toJSONString()).send();
-logger.debug("TransactionReceipt:{}", JSON.toJSONString(receipt));
+TransactionReceipt receipt = contract.CandidateDeposit(nodeId, owner, fee, host, port, extra.toJSONString(),value).send();
+logger.debug("CandidateDeposit TransactionReceipt:{}", JSON.toJSONString(receipt));
 
 //查看返回event
 List<CandidateDepositEventEventResponse>  events = contract.getCandidateDepositEventEvents(receipt);
 for (CandidateDepositEventEventResponse event : events) {
-	 logger.debug("event:{}", JSON.toJSONString(event));
-}
+	 logger.debug("CandidateDeposit event:{}", JSON.toJSONString(event.param1));
+} 
 ```
 
 #### **`CandidateApplyWithdraw`**
