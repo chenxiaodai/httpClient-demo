@@ -59,17 +59,37 @@
     ```
 
 2. maven方式引用
-```
-<dependency>
-    <groupId>com.platon.client</groupId>
-    <artifactId>core</artifactId>
-    <version>0.3.0</version>
-</dependency>
-```
+
+    Java 8:
+    ```
+    <dependency>
+        <groupId>com.platon.client</groupId>
+        <artifactId>core</artifactId>
+        <version>0.3.0</version>
+    </dependency>
+    ```
+    Android:
+    
+    ```
+    <dependency>
+        <groupId>com.platon.client</groupId>
+        <artifactId>core</artifactId>
+        <version>0.3.0-android</version>
+    </dependency>
+    ```
+    
 3. gradle方式引用
-```
-compile "com.platon.client:core:0.3.0"
-```
+
+    Java 8:
+    ```
+    compile "com.platon.client:core:0.3.0"
+    ```
+    Android:
+    
+    ```
+    compile "com.platon.client:core:0.3.0-android"
+    ```
+    
 ### 合约骨架生成工具
 1. 安装包下载 https://download.platon.network/client-sdk.zip
 2. 解压后说明
@@ -164,7 +184,11 @@ client-sdk wasm generate /path/to/firstdemo.wasm /path/to/firstdemo.cpp.abi.json
 
 ## 加载合约
 ```
+//Java 8
 Web3j web3j = Web3j.build(new HttpService("http://localhost:6789"));
+//Android
+Web3j web3j = Web3jFactory.build(new HttpService("http://localhost:6789"));
+
 Credentials credentials = WalletUtils.loadCredentials("password", "/path/to/walletfile");
 
 byte[] dataBytes = Files.readBytes(new File("<wasm file path>"));
@@ -175,7 +199,12 @@ Firstdemo contract = Firstdemo.load(binData, "0x<address>", web3j, credentials, 
 
 ## 部署合约
 ```
+//Java 8
 Web3j web3j = Web3j.build(new HttpService("http://localhost:6789"));
+//Android
+Web3j web3j = Web3jFactory.build(new HttpService("http://localhost:6789"));
+
+
 Credentials credentials = WalletUtils.loadCredentials("password", "/path/to/walletfile");
 
 byte[] dataBytes = Files.readBytes(new File("<wasm file path>"));
@@ -211,7 +240,11 @@ for(NotifyEventResponse r:eventResponses) {
 
 #### 加载合约
 ```
+//Java 8
 Web3j web3j = Web3j.build(new HttpService("http://localhost:6789"));
+//Android
+Web3j web3j = Web3jFactory.build(new HttpService("http://localhost:6789"));
+
 Credentials credentials = WalletUtils.loadCredentials("password", "/path/to/walletfile");
 
 CandidateContract contract = CandidateContract.load(web3j, credentials, new DefaultWasmGasProvider());
