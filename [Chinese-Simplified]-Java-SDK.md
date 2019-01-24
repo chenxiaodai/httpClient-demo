@@ -14,6 +14,7 @@
     -   [合约sendRawTransaction调用](#合约sendrawtransaction调用)
     -   [内置合约](#内置合约)
         -  [CandidateContract](#CandidateContract)
+        -  [TicketContract](#TicketContract)
 -   [web3](#web3)
     -   [web3 eth相关 (标准JSON RPC )](#web3-eth相关-标准json-rpc)
     -   [新增的接口](#新增的接口)
@@ -698,6 +699,295 @@ logger.debug("CandidateList:{}",nodeInfoList);
 String result = contract.VerifiersList().send();
 logger.debug("VerifiersList:{}",result);
 ```
+
+###  TicketContract
+> PlatOn经济模型中票池相关的合约接口 [合约描述](https://note.youdao.com/)
+
+#### 加载合约
+```
+//Java 8
+Web3j web3j = Web3j.build(new HttpService("http://localhost:6789"));
+//Android
+Web3j web3j = Web3jFactory.build(new HttpService("http://localhost:6789"));
+
+Credentials credentials = WalletUtils.loadCredentials("password", "/path/to/walletfile");
+
+TicketContract contract = TicketContract.load(web3j, credentials, new DefaultWasmGasProvider());
+```
+
+#### **`GetTicketPrice`**
+> 获取当前的票价
+
+**入参**
+
+无
+
+**返回**
+
+- String：当前票价(单位为e)
+
+合约使用：
+```
+String price = contract.GetTicketPrice().send();
+logger.debug("Ticket price: {}",price);
+```
+
+#### **`GetPoolRemainder`**
+> 获取票池剩余票数量
+
+**入参**
+
+无
+
+**返回**
+
+- String：剩余票数量
+
+合约使用：
+```
+String detail = contract.GetPoolRemainder().send();
+logger.debug("{}",detail);
+```
+
+#### **`VoteTicket`**
+> 购买选票，投票给(已存在的)候选人。
+
+**入参**
+
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| count | BigInteger  | 购票数量 |
+| price | BigInteger | 选票单价(单位为e) |
+| nodeId | String |  候选人节点Id, 16进制格式， 0x开头  |
+
+
+**返回事件**
+
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| param1 | String | 执行结果，json格式字符串类型 |
+
+param1描述
+```
+{
+	"Ret":boolean,                         //是否成功 true:成功  false:失败
+	"ErrMsg":string,                       //错误信息，失败时存在
+	"Data":"5"                             //成功选票的数量
+}
+```
+
+**合约使用**
+```
+//选票单价
+String priceStr = contract.GetTicketPrice().send();
+BigInteger price =  new BigInteger(priceStr);
+//购票数量
+BigInteger count = BigInteger.valueOf(5L);
+//候选人节点Id
+String nodeId = "0x4f6c8fd10bfb512793f81a3594120c76b6991d3d06c0cc652035cbfae3fcd7cdc3f3d7a82021dfdb9ea99f014755ec1a640d832a0362b47be688bb31d504f62d";
+
+//调用接口
+TransactionReceipt receipt = contract.VoteTicket(count, price, nodeId).send();
+logger.debug("TicketContract TransactionReceipt:{}", JSON.toJSONString(receipt));
+
+//查看返回event
+List<VoteTicketEventEventResponse>  events = contract.getVoteTicketEventEvents(receipt);
+JSONObject result = null;
+for (VoteTicketEventEventResponse event : events) {
+	result = JSON.parseObject(event.param1);
+	logger.debug("TicketContract event:{}", result);
+} 
+
+//获得票id       
+String txHash = receipt.getTransactionHash();
+int tickets = result.getIntValue("Data");
+
+List<String> ticketList = contract.VoteTicketIds(tickets, txHash);
+logger.debug("TicketContract tickets:{}", ticketList);
+```
+
+#### **`GetTicketDetail`**
+> 获取票详情
+
+**入参**
+
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| ticketId | String  | 票Id |
+
+**返回**
+
+- String：json格式字符串
+
+```
+{
+    "TicketId": "0x6bf2236d95a98c798abf760e43d8a1a0f375ce095f6f286198053800262988c5",  //票Id
+    "Owner": "0x493301712671ada506ba6ca7891f436d29185821",  //票的所属者
+    "Deposit": 1000000000000000000,  //购票时的票价
+    "CandidateId": "4f6c8fd10bfb512793f81a3594120c76b6991d3d06c0cc652035cbfae3fcd7cdc3f3d7a82021dfdb9ea99f014755ec1a640d832a0362b47be688bb31d504f62d",  //候选人Id（节点Id）
+    "BlockNumber": 15548,   //购票时的块高
+    "State": 1,         //选票状态（1->正常，2->被选中，3->过期，4->掉榜）
+    "RBlockNumber": 0   //票被释放时的块高
+}
+```
+
+**合约使用**
+```
+//票id
+String ticketId = "0x6bf2236d95a98c798abf760e43d8a1a0f375ce095f6f286198053800262988c5";
+String detail = contract.GetTicketDetail(ticketId).send();
+logger.debug("{}",detail);
+```
+
+#### **`GetTicketDetail`**
+> 批量获取票详情
+
+**入参**
+
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| ticketIds | String  | 票id列表，中间通过`:`号分割 |
+
+**返回**
+
+- String：json格式字符串
+
+```
+[
+    {
+        "TicketId": "0x6bf2236d95a98c798abf760e43d8a1a0f375ce095f6f286198053800262988c5",
+        "Owner": "0x493301712671ada506ba6ca7891f436d29185821",
+        "Deposit": 1000000000000000000,
+        "CandidateId": "4f6c8fd10bfb512793f81a3594120c76b6991d3d06c0cc652035cbfae3fcd7cdc3f3d7a82021dfdb9ea99f014755ec1a640d832a0362b47be688bb31d504f62d",
+        "BlockNumber": 15548,
+        "State": 1,
+        "RBlockNumber": 0
+    },
+    {
+        "TicketId": "0x7f3d95634ebdbf0121a7de207b00cf2d2b4846000ec41b4a8a88d1e019701a5e",
+        "Owner": "0x493301712671ada506ba6ca7891f436d29185821",
+        "Deposit": 1000000000000000000,
+        "CandidateId": "4f6c8fd10bfb512793f81a3594120c76b6991d3d06c0cc652035cbfae3fcd7cdc3f3d7a82021dfdb9ea99f014755ec1a640d832a0362b47be688bb31d504f62d",
+        "BlockNumber": 15548,
+        "State": 1,
+        "RBlockNumber": 0
+    }
+]
+```
+
+**合约使用**
+```
+StringBuilder stringBuilder = new StringBuilder();
+//票id
+stringBuilder.append("0x6bf2236d95a98c798abf760e43d8a1a0f375ce095f6f286198053800262988c5");
+//分割
+stringBuilder.append(":");
+//票id
+stringBuilder.append("0x7f3d95634ebdbf0121a7de207b00cf2d2b4846000ec41b4a8a88d1e019701a5e");
+
+String detail = contract.GetBatchTicketDetail(stringBuilder.toString()).send();
+
+logger.debug("{}",detail);
+```
+
+#### **`GetCandidateTicketIds`**
+> 获取指定候选人的选票Id的列表
+
+**入参**
+
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| nodeId | String |  候选人节点Id, 16进制格式， 0x开头  |
+
+**返回**
+
+- String：json格式字符串
+
+```
+[
+    "0x10bf96889470610767243064e21741d91cd7380864b59eeb06478c1f1814d5e8",
+    "0x61dc68f275183aa230b58a660a46cf23de84b54c174ab8b87217797981988bf4"
+]
+```
+
+**合约使用**
+```
+//节点id
+String nodeId = "0x4f6c8fd10bfb512793f81a3594120c76b6991d3d06c0cc652035cbfae3fcd7cdc3f3d7a82021dfdb9ea99f014755ec1a640d832a0362b47be688bb31d504f62d";
+String ids = contract.GetCandidateTicketIds(nodeId).send();
+logger.debug("CandidateTicketIds: {}",ids);
+```
+
+#### **`GetBatchCandidateTicketIds`**
+> 批量获取指定候选人的选票Id的列表
+
+**入参**
+
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| nodeIds | String  | 节点id列表，中间通过`:`号分割 |
+
+**返回**
+
+- String：json格式字符串
+
+```
+{
+    //节点id
+    "01d033b5b07407e377a3eb268bdc3f07033774fb845b7826a6b741430c5e6b719bda5c4877514e8052fa5dbc2f20fb111a576f6696b6a16ca765de49e11e0541": [
+        //节点id下对应的选票
+        "0xb04bb4680653b39790681234bf95499aff790c5adfc5e07732a9efcc2700dd4d",  
+        "0x025c3f4c27707afceaef05f844027d6f19186c58a021477082a567b7a42edbaa"
+    ],
+    "4f6c8fd10bfb512793f81a3594120c76b6991d3d06c0cc652035cbfae3fcd7cdc3f3d7a82021dfdb9ea99f014755ec1a640d832a0362b47be688bb31d504f62d": [
+        "0x10bf96889470610767243064e21741d91cd7380864b59eeb06478c1f1814d5e8",
+        "0x61dc68f275183aa230b58a660a46cf23de84b54c174ab8b87217797981988bf4"
+    ]
+}
+```
+
+**合约使用**
+```
+StringBuilder stringBuilder = new StringBuilder();
+//节点id
+stringBuilder.append("0x4f6c8fd10bfb512793f81a3594120c76b6991d3d06c0cc652035cbfae3fcd7cdc3f3d7a82021dfdb9ea99f014755ec1a640d832a0362b47be688bb31d504f62d");
+//分割
+stringBuilder.append(":");
+//节点id
+stringBuilder.append("0x01d033b5b07407e377a3eb268bdc3f07033774fb845b7826a6b741430c5e6b719bda5c4877514e8052fa5dbc2f20fb111a576f6696b6a16ca765de49e11e0541");
+
+
+String detail = contract.GetBatchCandidateTicketIds(stringBuilder.toString()).send();
+
+logger.debug("{}",detail);
+```
+
+#### **`GetCandidateEpoch`**
+> 获取指定候选人的票龄
+
+**入参**
+
+| **参数名** | **类型** | **参数说明** |
+| ------ | ------ | ------ |
+| nodeId | String |  候选人节点Id, 16进制格式， 0x开头  |
+
+**返回**
+
+- String：票龄(如果没有查询到返回0)
+
+
+**合约使用**
+```
+//节点id
+String nodeId = "0x4f6c8fd10bfb512793f81a3594120c76b6991d3d06c0cc652035cbfae3fcd7cdc3f3d7a82021dfdb9ea99f014755ec1a640d832a0362b47be688bb31d504f62d";
+
+String detail = contract.GetCandidateEpoch(nodeId).send();
+
+logger.debug("{}",detail);
+```
+
+
+
 
 # web3
 ## web3 eth相关 (标准JSON RPC )
