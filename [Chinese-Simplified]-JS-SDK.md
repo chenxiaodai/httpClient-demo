@@ -38,7 +38,7 @@
 1. 实现了PlatON协议中交易类型定义
 2. 增加内置合约CandidateContract
 
-## v0.4.0 更新说明
+### v0.4.0 更新说明
 1. 增加内置合约TicketContract
 
 ### 快速入门
