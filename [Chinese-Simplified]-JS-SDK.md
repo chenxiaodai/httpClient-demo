@@ -38,10 +38,10 @@
 1. 实现了PlatON协议中交易类型定义
 2. 增加内置合约CandidateContract
 
-### v0.4.0 更新说明
+## v0.4.0 更新说明
 1. 增加内置合约TicketContract
 
-## 快速入门
+### 快速入门
 
 
 ### 安装或引入
@@ -433,7 +433,7 @@ module.exports = getTransactionReceipt
 
 Extra描述
 
-````json
+```
 {
     "nodeName":string,                     //节点名称
     "officialWebsite":string,              //官网 http | https
@@ -441,7 +441,7 @@ Extra描述
     "nodeDiscription":string,              //机构简介
     "nodeDepartment":string                //机构名称
 }
-````
+```
 
 **返回值 或 回调**
 
@@ -627,7 +627,7 @@ getTransactionReceipt(hash, (code, data) => {
 
 Extra描述
 
-````json
+```
 {
     "nodeName":string,                     //节点名称
     "officialWebsite":string,              //官网 http | https
@@ -635,7 +635,7 @@ Extra描述
     "nodeDiscription":string,              //机构简介
     "nodeDepartment":string                //机构名称
 }
-````
+```
 **返回值 或 回调**
 
 | 名称 |类型|含义|
@@ -706,7 +706,7 @@ getTransactionReceipt(hash, (code, data) => {
 | :------: |:------: |:------: |
 |string|String|解析后的日志数组|
 
-````json
+```
 {
     "Ret": true,
     "ErrMsg": "success",
@@ -716,7 +716,7 @@ getTransactionReceipt(hash, (code, data) => {
         "LockBlockCycle": 1            //退款金额锁定周期
     }]
 }
-````
+```
 
 ###### 示例
 
@@ -745,7 +745,7 @@ console.log('获取节点申请的退款记录列表结果:', result2);
 | :------: |:------: |:------: | :------: |
 |nodeId|String|必选|节点id, 16进制格式， 0x开头|
 
-````json
+```
 {
     //质押金额
     "Deposit": 200,
@@ -768,7 +768,7 @@ console.log('获取节点申请的退款记录列表结果:', result2);
     //出块奖励佣金比，以10000为基数(eg：5%，则fee=500)
     "Fee": 500
 }
-````
+```
 **返回值 或 回调**
 
 | 名称 |类型|含义|
@@ -815,7 +815,7 @@ console.log('获取候选人信息结果:', result2);
 
 `string` - `String` json格式字符串
 
-````json
+```
 {
     //质押金额
     "Deposit": 200,
@@ -838,7 +838,7 @@ console.log('获取候选人信息结果:', result2);
     //出块奖励佣金比，以10000为基数(eg：5%，则fee=500)
     "Fee": 500
 }
-````
+```
 
 ###### 示例
 
@@ -871,7 +871,7 @@ console.log('获取候选人信息结果:', result2);
 
 `string` - `String` json格式字符串
 
-````json
+```
 [{
     "Deposit": 11100000000000000000,
     "BlockNumber": 13721,
@@ -895,7 +895,7 @@ console.log('获取候选人信息结果:', result2);
     "Extra": "{\"nodeName\":\"xxxx-noedeName\",\"officialWebsite\":\"xxxx-officialWebsite\",\"nodePortrait\":\"group2/M00/00/12/wKgJVlw0XSyAY78cAAH3BKJzz9Y83.jpeg\",\"nodeDiscription\":\"xxxx-nodeDiscription1\",\"nodeDepartment\":\"xxxx-nodeDepartment\"}",
     "Fee": 500
 }]
-````
+```
 
 ###### 示例
 
@@ -926,7 +926,7 @@ console.log(`所有入围节点的信息列表:`, result2);
 
 `string` - `String` json格式字符串
 
-````json
+```
 [{
     "Deposit": 11100000000000000000,
     "BlockNumber": 13721,
@@ -950,7 +950,7 @@ console.log(`所有入围节点的信息列表:`, result2);
     "Extra": "{\"nodeName\":\"xxxx-noedeName\",\"officialWebsite\":\"xxxx-officialWebsite\",\"nodePortrait\":\"group2/M00/00/12/wKgJVlw0XSyAY78cAAH3BKJzz9Y83.jpeg\",\"nodeDiscription\":\"xxxx-nodeDiscription1\",\"nodeDepartment\":\"xxxx-nodeDepartment\"}",
     "Fee": 500
 }]
-````
+```
 
 ###### 示例
 
