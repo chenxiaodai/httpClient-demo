@@ -4,6 +4,7 @@
 - [版本说明](#版本说明)
   - [v0.2.0 更新说明](#v0.2.0-更新说明)
   - [v0.3.0 更新说明](#v0.3.0-更新说明)
+  - [v0.4.0 更新说明](#v0.4.0-更新说明)
 - [快速入门](#快速入门)
   - [安装或引入](#安装或引入)
   - [初始化代码](#初始化代码)
@@ -14,6 +15,7 @@
   - [合约sendRawTransaction调用](#合约sendrawtransaction调用)
   - [内置合约](#内置合约)
     - [CandidateContract](#CandidateContract)
+    - [TicketContract](#TicketContract)
 - [web3](#web3)
   - [web3 eth相关 (标准JSON RPC )](#web3-eth相关-标准json-rpc)
   - [新增的接口](#新增的接口)
@@ -35,6 +37,9 @@
 
 1. 实现了PlatON协议中交易类型定义
 2. 增加内置合约CandidateContract
+
+## v0.4.0 更新说明
+1. 增加内置合约TicketContract
 
 ### 快速入门
 
@@ -963,7 +968,456 @@ const result2 = toObj(result1.data);
 console.log('获取参与当前共识的验证人列结果:', result2);
 ````
 
+##### TicketContract
 
+> PlatON经济模型中票池相关的合约接口 [合约描述](https://note.youdao.com/)
+
+##### 加载合约
+
+````js
+const Web3 = require('web3'),
+    wallet = require('../owner.json'),//钱包文件
+    sign = require('./sign'),//签名 详细代码在下方
+    abi = require('../abi/ticketContract.json'),//票池相关abi
+    getTransactionReceipt = require('./getTransactionReceipt'),//详细代码在下方
+    ticketContractAddress='0x1000000000000000000000000000000000000002';//票池合约地址
+
+const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:6789'));
+
+const calcContract = web3.eth.contract(abi),
+    ticketContract = calcContract.at(ticketContractAddress);
+
+function getParams(data = '', value = "0x0") {
+    const nonce = web3.eth.getTransactionCount(wallet.address);
+
+    value = web3.toHex(value)
+
+    const params = {
+        from:'0xf8f3978c14f585c920718c27853e2380d6f5db36',//钱包地址
+        gasPrice: 22 * 10e9,
+        gas: 80000,
+        to: ticketContract.address,
+        value,
+        data,
+        nonce
+    }
+    return params;
+}
+````
+
+./sign.js文件
+
+````js
+const Tx = require('ethereumjs-tx');
+
+module.exports = (privateKey, data) => {
+    if (!privateKey || !data) {
+        throw new Error(`sign参数异常`);
+    }
+
+    const key = new Buffer(privateKey, 'hex'),
+        tx = new Tx(data);
+
+    tx.sign(key);
+
+    const serializeTx = tx.serialize(),
+        result = '0x' + serializeTx.toString('hex');
+
+    return result;
+};
+````
+
+./getTransactionReceipt.js
+
+````js
+const Web3 = require('web3'),
+    config = require('../config/config.json');
+const web3 = new Web3 (new Web3.providers.HttpProvider (config.provider));
+
+let wrapCount = 60;
+function getTransactionReceipt(hash, fn) {
+    let id = '',
+        result = web3.eth.getTransactionReceipt(hash),
+        data = {};
+    if (result && result.transactionHash && hash == result.transactionHash) {
+        clearTimeout(id);
+        if (result.logs.length != 0) {
+            fn(0, result);
+        } else {
+            fn(1001, '合约异常，失败');
+        }
+    } else {
+        if (wrapCount--) {
+            id = setTimeout(() => {
+                getTransactionReceipt(hash, fn);
+            }, 1000);
+        } else {
+            fn(1000, '超时');
+            id = '';
+        }
+    }
+}
+
+module.exports = getTransactionReceipt
+````
+
+##### GetTicketPrice
+
+> 获取当前的票价,单位是`wei`
+
+###### 参数
+
+| 名称 |类型|属性|含义|
+| :------: |:------: |:------: | :------: |
+
+**返回值 或 回调**
+
+| 名称 |类型|含义|
+| :------: |:------: |:------: |
+|param1|String|解析后的日志数组|
+
+param1描述
+```
+{
+	"Ret":Int,                         //当前票价(单位为e)
+	"ErrMsg":string                    //错误信息，失败时存在
+}
+```
+
+###### 示例
+
+````js
+const data = ticketContract.GetTicketPrice.getPlatONData()
+
+const result = web3.eth.call({
+    from: wallet.address,
+    to: ticketContract.address,
+    data: data,
+});
+
+const result1 = ticketContract.decodePlatONCall(result);
+console.log('getTicketPrice result:', result1);
+````
+
+##### VoteTicket
+
+> 购买选票，投票给(已存在的)候选人。票池容量为51200。发送交易的value为 购票数量 * 选票单价
+
+###### 参数
+
+| 名称 |类型|属性|含义|
+| :------: |:------: |:------: | :------: |
+|count|Number|必选|购票数量|
+|price|Number|必选|选票单价(单位为`e`)|
+|nodeId|String|必选|节点id, `16`进制格式， `0x`开头|
+
+
+**返回值 或 回调**
+
+| 名称 |类型|含义|
+| :------: |:------: |:------: |
+|param1|String|解析后的日志数组|
+
+param1描述
+```
+{
+	"Ret":boolean,                         //是否成功 true:成功  false:失败
+	"ErrMsg":string                        //错误信息，失败时存在
+    "Data":string                          //返回数据(成功选票的数量
+}
+```
+
+###### 示例
+
+````js
+const jsSHA = require('jssha');
+const privateKey = '099cad12189e848f70570196df434717c1ccc04f421da6ab651f38297a065cb7';
+
+const
+    count = 10,//购票数量
+    price = 1,//选票单价 使用GetTicketPrice 接口查询当前票价
+    nodeId = '0x4f6c8fd10bfb512793f81a3594120c76b6991d3d06c0cc652035cbfae3fcd7cdc3f3d7a82021dfdb9ea99f014755ec1a640d832a0362b47be688bb31d504f62d'//候选人节点Id
+
+const data = ticketContract.VoteTicket.getPlatONData(count, price, nodeId, {
+    transactionType: 1000//交易类型
+});
+
+const value = price * count
+
+const hash = web3.eth.sendRawTransaction(
+    sign(password, getParams(data, value))
+);
+
+getTransactionReceipt(hash, (code, data) => {
+    let res = ticketContract.decodePlatONLog(data.logs[0]);
+    if (res.length && res[0]) {
+        res = JSON.parse(res[0]);
+        if (res.ErrMsg == 'success') {
+            if (res.Data) {
+                let num = res.Data - 0, ids = [];
+                for (let i = 0; i < num; i++) {
+                    let ticketIndex = (i + '').charCodeAt(0).toString(16)
+                    let str = txHash.replace(/^0x/, '') + ticketIndex;
+                    var shaObj = new jsSHA("SHA3-256", "HEX");
+                    shaObj.update(str);
+                    let id = '0x' + shaObj.getHash("HEX");
+                    ids.push(id);
+                }
+                console.log(ids)
+            } else {
+                console.warn('没有票id')
+            }
+        } else {
+            console.warn(`购买选票失败`);
+        }
+    } else {
+        console.warn(`购买选票失败`);
+    }
+});
+````
+
+##### GetTicketDetail
+
+> 获取票详情
+
+###### 参数
+
+| 名称 |类型|属性|含义|
+| :------: |:------: |:------: | :------: |
+|ticketId|String|必选|票Id, `16`进制格式， `0x`开头|
+
+**返回值 或 回调**
+
+| 名称 |类型|含义|
+| :------: |:------: |:------: |
+|param1|String|解析后的日志数组|
+
+param1描述
+```
+{
+	"Ret":Ticket,                      //选票信息
+	"ErrMsg":string                    //错误信息，失败时存在
+}
+```
+
+###### 示例
+
+````js
+const ticketId = "0x134fba852817b9da8508f4b7e82e792be05b90f2a288e52df17c10da0f303b65"//票Id
+
+const data = ticketContract.GetTicketDetail.getPlatONData(ticketId)
+
+const result = web3.eth.call({
+    from: wallet.address,
+    to: ticketContract.address,
+    data: data,
+});
+
+const result1 = ticketContract.decodePlatONCall(result);
+console.log('getBatchTicketDetail:', result1);
+````
+
+##### GetBatchTicketDetail
+
+> 批量获取票详情
+
+###### 参数
+
+| 名称 |类型|属性|含义|
+| :------: |:------: |:------: | :------: |
+|ticketIds|String|必选|节点id列表, `16`进制格式， `0x`开头，多个节点id通过":"拼接的字符串|
+
+**返回值 或 回调**
+
+| 名称 |类型|含义|
+| :------: |:------: |:------: |
+|param1|String|解析后的日志数组|
+
+param1描述
+```
+{
+	"Ret":[]Ticket,                         //选票信息列表
+	"ErrMsg":string                    //错误信息，失败时存在
+}
+```
+
+###### 示例
+
+````js
+const ticketIds = "0x134fba852817b9da8508f4b7e82e792be05b90f2a288e52df17c10da0f303b65:0x9d1078cb595b669dc37501c4a6ed5bf98732d15ec083f4ad102b677ce62d07dc:0x036809aaa312a4414ffc0bfe9cdd1dadd9fd54725e1d8305fea8b39a566506e5:0xb0144ebd80ee817902185da65c23daa16eeceb339125ce889841925e928963ad:0x80d8bab01789f512d9d8b060609009276bf0a6b101b19989c3946e51049708fb:0x861c9a791df9d03b54471f7fd21c9e996cbaf6f6f885e47f1a20f204156ada88:0x294b2baae5f9445363436ff2cffaeff63baf536c5d21fd17b25ba0f79c30aacb:0xc8d43bf85d4a9c63198439a6c282a0b308cbb0e2102493c34640afc998f3a1ef"//票Id列表 多张票的Id 通过:拼接 string
+
+const data = ticketContract.GetBatchTicketDetail.getPlatONData(ticketIds)
+
+const result = web3.eth.call({
+    from: wallet.address,
+    to: ticketContract.address,
+    data: data,
+});
+
+const result1 = ticketContract.decodePlatONCall(result);
+console.log('getBatchTicketDetail:', result1);
+````
+
+##### GetCandidateTicketIds
+
+> 获取指定候选人的选票Id的列表
+
+###### 参数
+
+| 名称 |类型|属性|含义|
+| :------: |:------: |:------: | :------: |
+|nodeId|String|必选|节点id, `16`进制格式， `0x`开头|
+
+**返回值 或 回调**
+
+| 名称 |类型|含义|
+| :------: |:------: |:------: |
+|param1|String|解析后的日志数组|
+
+param1描述
+```
+{
+	"Ret":[]ticketId,                  //选票的Id列表
+	"ErrMsg":string                    //错误信息，失败时存在
+}
+```
+
+###### 示例
+
+````js
+const nodeId = '0x4f6c8fd10bfb512793f81a3594120c76b6991d3d06c0cc652035cbfae3fcd7cdc3f3d7a82021dfdb9ea99f014755ec1a640d832a0362b47be688bb31d504f62d'//候选人节点Id
+
+const data = ticketContract.GetCandidateTicketIds.getPlatONData(nodeId)
+
+const result = web3.eth.call({
+    from: wallet.address,
+    to: ticketContract.address,
+    data: data,
+});
+
+const result1 = ticketContract.decodePlatONCall(result);
+console.log('getCandidateEpoch result:', result1);
+````
+
+##### GetBatchCandidateTicketIds
+
+> 批量获取指定候选人的选票Id的列表
+
+###### 参数
+
+| 名称 |类型|属性|含义|
+| :------: |:------: |:------: | :------: |
+|nodeIds|String|必选|节点id列表, `16`进制格式， `0x`开头，多个节点id通过":"拼接的字符串|
+
+**返回值 或 回调**
+
+| 名称 |类型|含义|
+| :------: |:------: |:------: |
+|param1|String|解析后的日志数组|
+
+param1描述
+```
+{
+	"Ret":Int,                         //map(nodeId)[]ticketId 多个节点的选票的Id列表(map)
+	"ErrMsg":string                    //错误信息，失败时存在
+}
+```
+
+###### 示例
+
+````js
+const nodeIds = '0x4f6c8fd10bfb512793f81a3594120c76b6991d3d06c0cc652035cbfae3fcd7cdc3f3d7a82021dfdb9ea99f014755ec1a640d832a0362b47be688bb31d504f62d:0x01d033b5b07407e377a3eb268bdc3f07033774fb845b7826a6b741430c5e6b719bda5c4877514e8052fa5dbc2f20fb111a576f6696b6a16ca765de49e11e0541'//多个nodeId通过":"拼接的字符串
+
+const data = ticketContract.GetBatchCandidateTicketIds.getPlatONData(nodeIds)
+
+const result = web3.eth.call({
+    from: wallet.address,
+    to: ticketContract.address,
+    data: data,
+});
+
+const result1 = ticketContract.decodePlatONCall(result);
+console.log('getBatchCandidateTicketIds result:', result1);
+````
+
+##### GetCandidateEpoch
+
+> 获取指定候选人的票龄
+
+###### 参数
+
+| 名称 |类型|属性|含义|
+| :------: |:------: |:------: | :------: |
+|nodeId|String|必选|节点id, `16`进制格式， `0x`开头|
+
+**返回值 或 回调**
+
+| 名称 |类型|含义|
+| :------: |:------: |:------: |
+|param1|String|解析后的日志数组|
+
+param1描述
+```
+{
+	"Ret":number,                         //票龄(如果没有查询到返回0)
+	"ErrMsg":string                    //错误信息，失败时存在
+}
+```
+
+###### 示例
+
+````js
+const nodeId = '0x4f6c8fd10bfb512793f81a3594120c76b6991d3d06c0cc652035cbfae3fcd7cdc3f3d7a82021dfdb9ea99f014755ec1a640d832a0362b47be688bb31d504f62d'//候选人节点Id
+
+const data = ticketContract.GetCandidateEpoch.getPlatONData(nodeId)
+
+const result = web3.eth.call({
+    from: wallet.address,
+    to: ticketContract.address,
+    data: data,
+});
+
+const result1 = ticketContract.decodePlatONCall(result);
+console.log('getCandidateEpoch result:', result1);
+````
+
+##### GetPoolRemainder
+
+> 获取票池剩余票数量
+
+###### 参数
+
+| 名称 |类型|属性|含义|
+| :------: |:------: |:------: | :------: |
+
+**返回值 或 回调**
+
+| 名称 |类型|含义|
+| :------: |:------: |:------: |
+|param1|String|解析后的日志数组|
+
+param1描述
+```
+{
+	"Ret":number,                      //剩余票数量
+	"ErrMsg":string                    //错误信息，失败时存在
+}
+```
+
+###### 示例
+
+````js
+const data = ticketContract.GetPoolRemainder.getPlatONData()
+
+const result = web3.eth.call({
+    from: wallet.address,
+    to: ticketContract.address,
+    data: data,
+});
+
+const result1 = ticketContract.decodePlatONCall(result);
+console.log('getPoolRemainder result:', result1);
+````
 ### web3
 
 ----
